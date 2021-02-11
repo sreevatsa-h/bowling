@@ -22,11 +22,6 @@ public class GameController {
     @Autowired
     private GameService gameService;
 
-    @GetMapping("/")
-    public String test() {
-        return "Hello";
-    }
-
     @PostConstruct
     private void init() {
         this.gameService.setMaxPlayersPerLane();
