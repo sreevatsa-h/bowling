@@ -1,5 +1,6 @@
 package org.bowlinggame.dao;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
@@ -16,18 +17,34 @@ public class Game {
     private List<Player> players;
 
     @Column(name = "lanes")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer lanes;
 
     @Column(name = "n_players")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer nPlayers;
 
     @Column(name = "is_ongoing")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private boolean isOngoing = false;
 
-    @Column(name = "current_frame")
-    private Integer currentFrame = 0;
+    @Column(name = "current_sub_frame")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Integer currentSubFrame = 0;
+
+    @Column(name = "extra_frame")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Boolean extraFrame = false;
 
     private static Integer maxPlayersInLane;
+
+    public Game() {
+
+    }
+
+    public Game(List<Player> players) {
+        this.players = players;
+    }
 
     public Integer getGameId() {
         return gameId;
@@ -47,7 +64,7 @@ public class Game {
             player.setGame(this);
             player.setLaneNumber(currentLane);
             currentPlayerInLane+=1;
-            if (currentPlayerInLane % 3 == 0) {
+            if (currentPlayerInLane % Game.maxPlayersInLane == 0) {
                 currentLane+=1;
                 currentPlayerInLane = 0;
             }
@@ -72,6 +89,10 @@ public class Game {
 
     public boolean isOngoing() {
         return isOngoing;
+    }
+
+    public Integer getCurrentSubFrame() {
+        return currentSubFrame;
     }
 
     public boolean checkMaxPlayers(Integer maxAllowedPlayers) {
@@ -107,12 +128,48 @@ public class Game {
     }
 
     public Map<Integer, Integer> generateRoll() {
+
+        if (this.isOngoing == false) {
+            return null;
+        }
         Map<Integer, Integer> rollMap = new HashMap<Integer, Integer>();
         for(Player player: this.players) {
             rollMap.put(player.getId(), player.rollBall());
         }
 
+        this.currentSubFrame+=1;
+
+        if (this.currentSubFrame == 21) {
+            this.isOngoing = false;
+        }
+
+        rollMap.put(-1, this.isOngoing ? 1 : -1);
+
         return rollMap;
+    }
+
+    public void throwExtraFrame() {
+        this.extraFrame = true;
+    }
+
+    public void endGame() {
+        if (this.extraFrame == true) {
+            this.isOngoing = true;
+        }
+
+        else {
+            this.isOngoing = false;
+        }
+    }
+
+    public Boolean checkNullNames() {
+        for(Player player: this.players) {
+            if (player.getName() == null) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override

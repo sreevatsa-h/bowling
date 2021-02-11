@@ -10,4 +10,6 @@ public class BowlinggameApplication {
 		SpringApplication.run(BowlinggameApplication.class, args);
 	}
 
+
+
 }

@@ -1,9 +1,6 @@
 package org.bowlinggame.dao;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Rules {
@@ -11,11 +8,25 @@ public class Rules {
     @Id
     private Integer id;
 
+    @Column(name = "rule_name")
     private String ruleName;
 
+    @Column(name = "rule_description")
     private String ruleDescription;
 
+    @Column(name = "value")
     private Integer value;
+
+    public Rules() {
+
+    }
+
+    public Rules(Integer id, String ruleName, String ruleDescription, Integer value) {
+        this.id = id;
+        this.ruleName = ruleName;
+        this.ruleDescription = ruleDescription;
+        this.value = value;
+    }
 
     public Integer getId() {
         return id;
