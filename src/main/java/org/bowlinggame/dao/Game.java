@@ -54,13 +54,23 @@ public class Game {
         return players;
     }
 
+
+    /**
+     * @param players Gets list of players as input and sets their default values
+     */
     public void setPlayers(List<Player> players) {
         this.players = players;
         this.nPlayers = players.size();
+
+        // Calculate maximum lanes that are to be in this game
         this.calculateLanes();
+
+        // Allocate lane to each player
         Integer currentLane = 1;
         Integer currentPlayerInLane = 0;
         for (Player player: players) {
+
+            // Set foreign key of player object (This reflects on DB)
             player.setGame(this);
             player.setLaneNumber(currentLane);
             currentPlayerInLane+=1;
@@ -71,6 +81,10 @@ public class Game {
         }
     }
 
+
+    /**
+     * Given the number of players in the game and the maximum people allowed per lane, calculate number of lanes needed
+     */
     private void calculateLanes() {
         this.lanes = (int)Math.ceil((float) this.nPlayers / (float)this.maxPlayersInLane);
     }
@@ -95,6 +109,11 @@ public class Game {
         return currentSubFrame;
     }
 
+
+    /**
+     * @param maxAllowedPlayers : Maximum number of players in a game
+     * @return Returns true if number of players are under the allowed limit, false otherwise
+     */
     public boolean checkMaxPlayers(Integer maxAllowedPlayers) {
         if (this.players.size() > maxAllowedPlayers) {
             return false;
@@ -103,6 +122,10 @@ public class Game {
         return true;
     }
 
+
+    /**
+     * @return Returns true if no names are duplicates, false otherwise
+     */
     public boolean checkDuplicates() {
         Set<String> uniqueCheck = new HashSet<String>();
         Integer prevSize = 0;
@@ -119,6 +142,7 @@ public class Game {
         return true;
     }
 
+    // Runs when server is launched or rules are changed
     public static void setMaxPlayersInLane(Integer maxPlayersInLane) {
         Game.maxPlayersInLane = maxPlayersInLane;
     }
@@ -127,11 +151,17 @@ public class Game {
         return Game.maxPlayersInLane;
     }
 
+
+    /**
+     * @return Returns a Map with <PlayerID, Roll>, null if any error
+     */
     public Map<Integer, Integer> generateRoll() {
 
+        // If the game is not ongoing return false
         if (this.isOngoing == false) {
             return null;
         }
+        // Generate roll for each player and add it to the map
         Map<Integer, Integer> rollMap = new HashMap<Integer, Integer>();
         for(Player player: this.players) {
             rollMap.put(player.getId(), player.rollBall());
@@ -143,15 +173,19 @@ public class Game {
             this.isOngoing = false;
         }
 
+        // Add the ongoing status with key -1 and value 1 for true and -1 for false
         rollMap.put(-1, this.isOngoing ? 1 : -1);
 
         return rollMap;
     }
 
+    // Set if extra sub frame needs to be thrown
     public void throwExtraFrame() {
         this.extraFrame = true;
     }
 
+    // End game logic checks if extra sub frame needs to be thrown (On the last frame), if not the game is ended
+    // Otherwise, the game remains active for 1 more turn
     public void endGame() {
         if (this.extraFrame == true) {
             this.isOngoing = true;
@@ -162,9 +196,13 @@ public class Game {
         }
     }
 
+
+    /**
+     * @return Returns true if no names are empty, false otherwise
+     */
     public Boolean checkNullNames() {
         for(Player player: this.players) {
-            if (player.getName() == null) {
+            if (player.getName() == null || player.getName() == "") {
                 return false;
             }
         }

@@ -12,8 +12,9 @@
 1. Clone repo
 2. Change application.properties file (database URLs/username/password)
 3. Wait for maven dependencies to be installed
-3. Run command `mvn spring-boot:run` (maven has to be installed)
+4. Run command `mvn spring-boot:run` (maven has to be installed)
    Server can also be run by importing the repo into Intellij Idea or equivalent IDE and running from it
+5. Access from browser `http://localhost:8002` (The port number is `application.properties`)
 
 <h1>Possible Issues:</h1>
 

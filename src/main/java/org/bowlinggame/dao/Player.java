@@ -110,6 +110,11 @@ public class Player {
         return nSpares;
     }
 
+
+    /**
+     * @return Convert rolls which are stored as string, into a list of integers
+     *  The rolls are stored like the following example "5;4;2;1;3;"
+     */
     public List<Integer> getRollsAsList() {
         if (this.rolls == null) {
             return new ArrayList<Integer>();
@@ -123,6 +128,11 @@ public class Player {
         return integerList;
     }
 
+
+    /**
+     * @param integerList Integer list that needs to be converted to String to save to db
+     * @return Returns the final string
+     */
     public String setRollString(List<Integer> integerList) {
         StringBuilder newRollString = new StringBuilder("");
         for(Integer roll : integerList) {
@@ -134,6 +144,10 @@ public class Player {
         return this.rolls;
     }
 
+
+    /**
+     * @return Returns the roll of the current player
+     */
     public Integer rollBall() {
 
         List<Integer> rolls = this.getRollsAsList();
@@ -149,12 +163,14 @@ public class Player {
             remainingPins = 10 - rolls.get(rolls.size() - 1);
         }
 
+        // If player is eligible for the last sub frame (Only possible in the last frame)
         if (rolls.size() == 20 && this.eligibleForExtraFrame == false) {
             rolls.add(-1);
             this.setRollString(rolls);
             return -1;
         }
 
+        // Generate random roll
         Random roller = new Random();
         Integer randomRoll = roller.nextInt(remainingPins + 1);
         rolls.add(randomRoll);
@@ -165,27 +181,35 @@ public class Player {
             this.nMissedStrikes+=1;
         }
 
+        // If random roll is a strike
         if (randomRoll == 10) {
             this.score += 10;
             this.nStrikes += 1;
-        } else if (rolls.size() %2 == 0 && rolls.size() > 2 && rolls.get(rolls.size() -1) + rolls.get(rolls.size() -2) == 10) {
+        }
+
+        // If random roll is a spare
+        else if (rolls.size() %2 == 0 && rolls.size() > 2 && rolls.get(rolls.size() -1) + rolls.get(rolls.size() -2) == 10) {
             this.score += 5;
             this.nSpares+=1;
         }
 
         this.score += randomRoll;
 
+        // Check if on last sub frame
         if (rolls.size() == 20) {
+            // Check if the player has rolled a strike on the last frame, if so grant him an extra shot
             if (rolls.get(18) == 10 || rolls.get(19) == 10) {
                 this.game.throwExtraFrame();
                 this.eligibleForExtraFrame = true;
             }
 
+            // Check if player has rolled a spare in the last frame, if so grant him an extra shot
             else if (rolls.get(18) + rolls.get(19) == 10) {
                 this.game.throwExtraFrame();
                 this.eligibleForExtraFrame = true;
             }
 
+            // End game otherwise (The game is only ended if eligibleForExtraFrame is not set)
             this.game.endGame();
 
         }
